@@ -11,6 +11,7 @@ import ChallengesList from "./pages/ChallengesList";
 import ChallengePage from "./pages/ChallengePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import AuthPage from "./pages/AuthPage";
+import AdminPage from "./pages/AdminPage";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/challenge/:id" element={<ChallengePage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

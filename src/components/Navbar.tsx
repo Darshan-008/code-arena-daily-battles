@@ -28,6 +28,13 @@ const Navbar = () => {
                   Leaderboard
                 </Link>
               </li>
+              {user && (
+                <li>
+                  <Link to="/admin" className="text-codewars-light hover:text-codewars-blue transition-colors">
+                    Admin
+                  </Link>
+                </li>
+              )}
               <li>
                 {user ? (
                   <Button 
