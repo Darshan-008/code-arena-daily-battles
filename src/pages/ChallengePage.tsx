@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,13 +32,13 @@ const ChallengePage = () => {
         if (data?.solution_template && !code) {
           setCode(data.solution_template);
         }
+      },
+      onError: () => {
+        navigate("/challenges");
+        toast({
+          description: "Could not load challenge"
+        });
       }
-    },
-    onError: () => {
-      navigate("/challenges");
-      toast({
-        description: "Could not load challenge"
-      });
     }
   });
 
