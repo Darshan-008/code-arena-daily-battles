@@ -25,10 +25,12 @@ const ChallengePage = () => {
     queryKey: ["challenge", id],
     queryFn: () => id ? getChallenge(id) : null,
     enabled: !!id,
-    onSuccess: (data) => {
-      // If no pre-existing submission, populate with template
-      if (data?.solution_template && !code) {
-        setCode(data.solution_template);
+    meta: {
+      onSuccess: (data: Challenge | null) => {
+        // If no pre-existing submission, populate with template
+        if (data?.solution_template && !code) {
+          setCode(data.solution_template);
+        }
       }
     },
     onError: () => {
@@ -44,12 +46,28 @@ const ChallengePage = () => {
     queryKey: ["submission", id, user?.id],
     queryFn: () => id ? getUserSubmissionForChallenge(id) : null,
     enabled: !!user && !!id,
-    onSuccess: (data) => {
-      if (data?.code) {
-        setCode(data.code);
+    meta: {
+      onSuccess: (data: Submission | null) => {
+        if (data?.code) {
+          setCode(data.code);
+        }
       }
     }
   });
+
+  // Handle challenge data when it changes
+  useEffect(() => {
+    if (challenge?.solution_template && !code) {
+      setCode(challenge.solution_template);
+    }
+  }, [challenge, code]);
+
+  // Handle submission data when it changes 
+  useEffect(() => {
+    if (existingSubmission?.code) {
+      setCode(existingSubmission.code);
+    }
+  }, [existingSubmission]);
 
   const handleRunCode = () => {
     // Simple validation
