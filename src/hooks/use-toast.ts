@@ -1,7 +1,7 @@
 
-import { toast } from "@/components/ui/sonner"
+import { toast as sonnerToast } from "@/components/ui/sonner"
 
-export { toast }
+export const toast = sonnerToast;
 
 export type ToastProps = {
   description?: string
@@ -11,7 +11,7 @@ export type ToastProps = {
 export const useToast = () => {
   return {
     toast: ({ description, action, ...props }: ToastProps) => {
-      toast("Notification", {
+      sonnerToast("Notification", {
         description,
         action,
         ...props,

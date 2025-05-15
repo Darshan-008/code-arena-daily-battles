@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,7 +25,6 @@ const ChallengePage = () => {
     queryKey: ["challenge", id],
     queryFn: () => id ? getChallenge(id) : null,
     enabled: !!id,
-    // Use onSuccess instead of onSettled
     onSuccess: (data) => {
       // If no pre-existing submission, populate with template
       if (data?.solution_template && !code) {
@@ -46,7 +44,6 @@ const ChallengePage = () => {
     queryKey: ["submission", id, user?.id],
     queryFn: () => id ? getUserSubmissionForChallenge(id) : null,
     enabled: !!user && !!id,
-    // Use onSuccess instead of onSettled
     onSuccess: (data) => {
       if (data?.code) {
         setCode(data.code);

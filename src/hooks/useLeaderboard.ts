@@ -30,8 +30,7 @@ export function useLeaderboard() {
         
       if (error) {
         toast({
-          title: "Error fetching leaderboard",
-          description: error.message,
+          description: "Error fetching leaderboard: " + error.message,
         });
         throw error;
       }

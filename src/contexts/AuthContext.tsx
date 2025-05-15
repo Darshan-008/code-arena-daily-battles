@@ -52,8 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
     } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error.message,
+        description: "Login failed: " + error.message,
       });
       throw error;
     }
@@ -74,13 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       
       toast({
-        title: "Account created",
-        description: "Please check your email for verification link",
+        description: "Account created. Please check your email for verification link",
       });
     } catch (error: any) {
       toast({
-        title: "Registration failed",
-        description: error.message,
+        description: "Registration failed: " + error.message,
       });
       throw error;
     }
@@ -92,8 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
     } catch (error: any) {
       toast({
-        title: "Sign out failed",
-        description: error.message,
+        description: "Sign out failed: " + error.message,
       });
     }
   };
