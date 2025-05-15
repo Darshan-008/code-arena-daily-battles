@@ -10,26 +10,30 @@ import Navbar from "./components/Navbar";
 import ChallengesList from "./pages/ChallengesList";
 import ChallengePage from "./pages/ChallengePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import AuthPage from "./pages/AuthPage";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/challenges" element={<ChallengesList />} />
-          <Route path="/challenge/:id" element={<ChallengePage />} />
-          <Route path="/leaderboard" element={<LeaderboardPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/challenges" element={<ChallengesList />} />
+            <Route path="/challenge/:id" element={<ChallengePage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

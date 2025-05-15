@@ -9,6 +9,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      challenges: {
+        Row: {
+          created_at: string | null
+          description: string
+          difficulty: string
+          id: string
+          solution_template: string | null
+          tags: string[]
+          test_cases: Json | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          difficulty: string
+          id?: string
+          solution_template?: string | null
+          tags: string[]
+          test_cases?: Json | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          difficulty?: string
+          id?: string
+          solution_template?: string | null
+          tags?: string[]
+          test_cases?: Json | null
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          challenge_id: string
+          code: string
+          created_at: string | null
+          id: string
+          runtime_ms: number | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          code: string
+          created_at?: string | null
+          id?: string
+          runtime_ms?: number | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          code?: string
+          created_at?: string | null
+          id?: string
+          runtime_ms?: number | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_verifications: {
         Row: {
           biometric_code_created_at: string | null

@@ -1,17 +1,10 @@
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
-  const { toast } = useToast();
-
-  const handleLoginClick = () => {
-    toast({
-      title: "Backend Required",
-      description: "MongoDB and Express.js backend required for authentication.",
-    });
-  };
+  const { user, signOut } = useAuth();
 
   return (
     <header className="bg-codewars-dark border-b border-codewars-blue/30">
@@ -36,13 +29,24 @@ const Navbar = () => {
                 </Link>
               </li>
               <li>
-                <Button 
-                  variant="outline" 
-                  className="border-codewars-blue text-codewars-blue hover:bg-codewars-blue/10"
-                  onClick={handleLoginClick}
-                >
-                  Login
-                </Button>
+                {user ? (
+                  <Button 
+                    variant="outline" 
+                    className="border-codewars-blue text-codewars-blue hover:bg-codewars-blue/10"
+                    onClick={signOut}
+                  >
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Link to="/auth">
+                    <Button 
+                      variant="outline" 
+                      className="border-codewars-blue text-codewars-blue hover:bg-codewars-blue/10"
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                )}
               </li>
             </ul>
           </nav>
