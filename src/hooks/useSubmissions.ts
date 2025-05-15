@@ -47,7 +47,6 @@ export function useSubmissions() {
 
       if (error) {
         toast({
-          title: "Error fetching submissions",
           description: error.message,
         });
         throw error;
@@ -71,7 +70,6 @@ export function useSubmissions() {
 
     if (error && error.code !== "PGRST116") {
       toast({
-        title: "Error fetching submission",
         description: error.message,
       });
       throw error;
@@ -123,7 +121,6 @@ export function useSubmissions() {
 
       if (result.error) {
         toast({
-          title: "Error submitting solution",
           description: result.error.message,
         });
         throw result.error;
@@ -134,13 +131,11 @@ export function useSubmissions() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["submissions"] });
       toast({
-        title: "Solution submitted",
         description: "Your solution has been submitted and evaluated",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Submission failed",
         description: error.message,
       });
     },

@@ -30,7 +30,6 @@ export function useChallenges() {
       if (error) {
         console.error("Error fetching challenges:", error);
         toast({
-          title: "Error fetching challenges",
           description: error.message,
         });
         throw error;
@@ -51,7 +50,6 @@ export function useChallenges() {
     if (error) {
       console.error(`Error fetching challenge ${id}:`, error);
       toast({
-        title: "Error fetching challenge",
         description: error.message,
       });
       throw error;

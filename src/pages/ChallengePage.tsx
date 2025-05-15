@@ -26,7 +26,8 @@ const ChallengePage = () => {
     queryKey: ["challenge", id],
     queryFn: () => id ? getChallenge(id) : null,
     enabled: !!id,
-    onSettled: (data) => {
+    // Use onSuccess instead of onSettled
+    onSuccess: (data) => {
       // If no pre-existing submission, populate with template
       if (data?.solution_template && !code) {
         setCode(data.solution_template);
@@ -35,7 +36,6 @@ const ChallengePage = () => {
     onError: () => {
       navigate("/challenges");
       toast({
-        title: "Error",
         description: "Could not load challenge"
       });
     }
@@ -46,7 +46,8 @@ const ChallengePage = () => {
     queryKey: ["submission", id, user?.id],
     queryFn: () => id ? getUserSubmissionForChallenge(id) : null,
     enabled: !!user && !!id,
-    onSettled: (data) => {
+    // Use onSuccess instead of onSettled
+    onSuccess: (data) => {
       if (data?.code) {
         setCode(data.code);
       }
@@ -93,7 +94,6 @@ const ChallengePage = () => {
     } catch (err) {
       console.error(err);
       toast({
-        title: "Error",
         description: "Failed to submit solution"
       });
     }
