@@ -10,6 +10,7 @@ export type Challenge = {
   tags: string[];
   description: string;
   solution_template?: string;
+  test_cases?: string;
   created_at: string;
 };
 

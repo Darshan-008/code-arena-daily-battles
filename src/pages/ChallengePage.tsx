@@ -5,10 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useChallenges } from "@/hooks/useChallenges";
-import { useSubmissions } from "@/hooks/useSubmissions";
+import { useChallenges, Challenge } from "@/hooks/useChallenges";
+import { useSubmissions, Submission } from "@/hooks/useSubmissions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "@/hooks/use-toast";
 
 const ChallengePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +25,8 @@ const ChallengePage = () => {
   const { data: challenge, isLoading: isLoadingChallenge } = useQuery({
     queryKey: ["challenge", id],
     queryFn: () => id ? getChallenge(id) : null,
-    onSuccess: (data) => {
+    enabled: !!id,
+    onSettled: (data) => {
       // If no pre-existing submission, populate with template
       if (data?.solution_template && !code) {
         setCode(data.solution_template);
@@ -32,6 +34,10 @@ const ChallengePage = () => {
     },
     onError: () => {
       navigate("/challenges");
+      toast({
+        title: "Error",
+        description: "Could not load challenge"
+      });
     }
   });
 
@@ -40,7 +46,7 @@ const ChallengePage = () => {
     queryKey: ["submission", id, user?.id],
     queryFn: () => id ? getUserSubmissionForChallenge(id) : null,
     enabled: !!user && !!id,
-    onSuccess: (data) => {
+    onSettled: (data) => {
       if (data?.code) {
         setCode(data.code);
       }
@@ -75,14 +81,21 @@ const ChallengePage = () => {
     
     try {
       const result = await submit({ challenge_id: id, code });
-      setResults({
-        success: result.status === "Correct",
-        message: result.status === "Correct" 
-          ? `✅ Your solution is correct! Execution time: ${result.runtime_ms}ms` 
-          : "❌ Your solution is incorrect. Please check your logic and try again."
-      });
+      
+      if (result && typeof result === 'object') {
+        setResults({
+          success: result.status === "Correct",
+          message: result.status === "Correct" 
+            ? `✅ Your solution is correct! Execution time: ${result.runtime_ms}ms` 
+            : "❌ Your solution is incorrect. Please check your logic and try again."
+        });
+      }
     } catch (err) {
       console.error(err);
+      toast({
+        title: "Error",
+        description: "Failed to submit solution"
+      });
     }
   };
 
@@ -201,16 +214,18 @@ const ChallengePage = () => {
                       <p className="mb-2">// Test cases for {challenge.title}</p>
                       <p className="mb-2">// Run your code to test against these cases</p>
                       <p className="mb-2">&nbsp;</p>
-                      {challenge.test_cases && Array.isArray(JSON.parse(challenge.test_cases as unknown as string)) ? (
-                        JSON.parse(challenge.test_cases as unknown as string).map((test: any, index: number) => (
-                          <div key={index} className="mb-4">
-                            <p>// Test {index + 1}:</p>
-                            <p>// Input: {JSON.stringify(test.input)}</p>
-                            <p>// Expected: {JSON.stringify(test.expected)}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <p>No test cases available</p>
+                      {challenge.test_cases && typeof challenge.test_cases === 'string' && (
+                        Array.isArray(JSON.parse(challenge.test_cases)) ? (
+                          JSON.parse(challenge.test_cases).map((test: any, index: number) => (
+                            <div key={index} className="mb-4">
+                              <p>// Test {index + 1}:</p>
+                              <p>// Input: {JSON.stringify(test.input)}</p>
+                              <p>// Expected: {JSON.stringify(test.expected)}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <p>No test cases available</p>
+                        )
                       )}
                     </div>
                   </CardContent>

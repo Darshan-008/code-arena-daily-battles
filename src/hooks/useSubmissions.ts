@@ -19,6 +19,11 @@ export type NewSubmission = {
   code: string;
 };
 
+export type SubmissionResult = {
+  status: "Correct" | "Incorrect" | "Pending";
+  runtime_ms: number;
+};
+
 export function useSubmissions() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -77,7 +82,7 @@ export function useSubmissions() {
 
   // Create or update a submission
   const submitMutation = useMutation({
-    mutationFn: async ({ challenge_id, code }: NewSubmission) => {
+    mutationFn: async ({ challenge_id, code }: NewSubmission): Promise<SubmissionResult> => {
       if (!user) throw new Error("You must be logged in to submit");
 
       // Naive solution checking (in production this would be an edge function)
@@ -144,7 +149,7 @@ export function useSubmissions() {
   return {
     submissions,
     getUserSubmissionForChallenge,
-    submit: submitMutation.mutate,
+    submit: submitMutation.mutateAsync,
     isSubmitting: submitMutation.isPending,
     isLoading,
     error,
