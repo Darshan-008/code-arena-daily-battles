@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,7 @@ import AIGenerationForm, { AIFormValues } from "@/components/admin/AIGenerationF
 const AdminPage = () => {
   const { createChallenge, generateChallengeWithAI, isCreating } = useCreateChallenge();
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("manual");
   
   // Reference to the manual form for updating with AI-generated values
   const [manualFormValues, setManualFormValues] = useState<Partial<FormValues>>({});
@@ -50,6 +51,9 @@ const AdminPage = () => {
       toast({
         description: "Challenge created successfully!",
       });
+      
+      // Reset form values after successful submission
+      setManualFormValues({});
     } catch (error: any) {
       toast({
         description: `Failed to create challenge: ${error.message}`,
@@ -74,6 +78,9 @@ const AdminPage = () => {
         test_cases: JSON.stringify(generatedChallenge.test_cases || [], null, 2),
       });
       
+      // Switch to manual tab to allow editing
+      setActiveTab("manual");
+      
       toast({
         description: "Challenge generated successfully! Review and make any changes before submitting.",
       });
@@ -85,6 +92,14 @@ const AdminPage = () => {
       setIsGeneratingAI(false);
     }
   };
+
+  // Update ChallengeForm when manualFormValues changes
+  useEffect(() => {
+    // This effect is triggered when the AI generates a new challenge
+    if (Object.keys(manualFormValues).length > 0) {
+      setActiveTab("manual");
+    }
+  }, [manualFormValues]);
 
   return (
     <AdminCheck>
@@ -102,7 +117,7 @@ const AdminPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="manual">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-4 grid grid-cols-2">
                   <TabsTrigger value="manual">Manual Creation</TabsTrigger>
                   <TabsTrigger value="ai">AI-Assisted</TabsTrigger>
@@ -112,6 +127,7 @@ const AdminPage = () => {
                   <ChallengeForm 
                     isCreating={isCreating}
                     onSubmit={onSubmit}
+                    initialValues={manualFormValues}
                   />
                 </TabsContent>
                 
@@ -137,7 +153,11 @@ const AdminPage = () => {
                 <ChallengesTable />
               </CardContent>
               <CardFooter>
-                <Button className="w-full" variant="outline">
+                <Button 
+                  className="w-full" 
+                  variant="outline"
+                  onClick={() => setActiveTab("manual")}
+                >
                   <PlusCircle className="mr-2" />
                   Add New Challenge
                 </Button>

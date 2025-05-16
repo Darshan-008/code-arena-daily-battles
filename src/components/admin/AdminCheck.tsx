@@ -3,10 +3,17 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 // List of admin user IDs - in a real app, this would be managed in a separate admin table
 const ADMIN_USER_IDS: string[] = [
-  // Add known admin user IDs here - this is a temporary solution
+  // Add known admin user IDs here
+];
+
+// List of admin email domains - emails with these domains will be granted admin access
+const ADMIN_EMAIL_DOMAINS: string[] = [
+  "youradmindomain.com",
+  // Add other admin domains here
 ];
 
 interface AdminCheckProps {
@@ -25,20 +32,35 @@ const AdminCheck = ({ children }: AdminCheckProps) => {
       if (!user) return;
 
       try {
-        // For now, we'll consider the first user who logs in as an admin
-        // This is a temporary solution - in production, you would check against a proper admin list
-        
         // Option 1: Check if user's email is from a specific domain (e.g., company email)
-        const isCompanyEmail = user.email?.endsWith('@youradmindomain.com');
+        const isCompanyEmail = user.email && ADMIN_EMAIL_DOMAINS.some(domain => 
+          user.email?.toLowerCase().endsWith(`@${domain.toLowerCase()}`)
+        );
         
         // Option 2: Check if user's ID is in our hardcoded admin list
         const isAdminById = ADMIN_USER_IDS.includes(user.id);
         
-        // Option 3: For testing purposes, make the current user an admin
-        // IMPORTANT: Remove this in production!
-        const isTestAdmin = true; // For development only
+        // Option 3: In the future, you would check against a database table of admins
+        // For now, we'll use a fallback for development only
+        const isDevelopmentAdmin = process.env.NODE_ENV === 'development';
         
-        setIsAdmin(isCompanyEmail || isAdminById || isTestAdmin);
+        // Check for admin role in Supabase (if you have an admin role column in profiles)
+        let hasAdminRole = false;
+        
+        try {
+          const { data } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+          
+          hasAdminRole = data?.role === "admin";
+        } catch (error) {
+          // If the role column doesn't exist, this will fail silently
+          console.log("Note: No role column found in profiles table");
+        }
+        
+        setIsAdmin(isCompanyEmail || isAdminById || isDevelopmentAdmin || hasAdminRole);
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);

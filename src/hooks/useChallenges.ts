@@ -40,6 +40,37 @@ export function useChallenges() {
     },
   });
 
+  // Delete a challenge by ID
+  const deleteChallenge = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("challenges")
+        .delete()
+        .eq("id", id);
+      
+      if (error) {
+        console.error(`Error deleting challenge ${id}:`, error);
+        toast({
+          description: error.message,
+        });
+        throw error;
+      }
+      
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["challenges"] });
+      toast({
+        description: "Challenge deleted successfully"
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        description: `Failed to delete challenge: ${error.message}`,
+      });
+    }
+  });
+
   // Fetch a single challenge by ID
   const getChallenge = async (id: string) => {
     const { data, error } = await supabase
@@ -62,6 +93,7 @@ export function useChallenges() {
   return {
     challenges,
     getChallenge,
+    deleteChallenge: deleteChallenge.mutateAsync,
     isLoading,
     error
   };

@@ -1,5 +1,6 @@
 
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,22 +35,37 @@ export type FormValues = {
 interface ChallengeFormProps {
   isCreating: boolean;
   onSubmit: (values: FormValues) => Promise<void>;
+  initialValues?: Partial<FormValues>;
 }
 
-const ChallengeForm = ({ isCreating, onSubmit }: ChallengeFormProps) => {
+const ChallengeForm = ({ isCreating, onSubmit, initialValues = {} }: ChallengeFormProps) => {
   const form = useForm<FormValues>({
     defaultValues: {
-      title: "",
-      description: "",
-      difficulty: "Medium",
-      solution_template: "function solution() {\n  // Write your solution here\n}",
-      tags: "algorithms",
-      test_cases: JSON.stringify([
+      title: initialValues.title || "",
+      description: initialValues.description || "",
+      difficulty: initialValues.difficulty || "Medium",
+      solution_template: initialValues.solution_template || "function solution() {\n  // Write your solution here\n}",
+      tags: initialValues.tags || "algorithms",
+      test_cases: initialValues.test_cases || JSON.stringify([
         { input: "example1", expected: "result1" },
         { input: "example2", expected: "result2" }
       ], null, 2),
     },
   });
+  
+  // Update form when initialValues change (e.g., from AI generation)
+  useEffect(() => {
+    if (Object.keys(initialValues).length > 0) {
+      form.reset({
+        title: initialValues.title || form.getValues("title"),
+        description: initialValues.description || form.getValues("description"),
+        difficulty: initialValues.difficulty || form.getValues("difficulty"),
+        solution_template: initialValues.solution_template || form.getValues("solution_template"),
+        tags: initialValues.tags || form.getValues("tags"),
+        test_cases: initialValues.test_cases || form.getValues("test_cases"),
+      });
+    }
+  }, [initialValues, form]);
 
   const handleSubmit = async (values: FormValues) => {
     try {
@@ -74,7 +90,17 @@ const ChallengeForm = ({ isCreating, onSubmit }: ChallengeFormProps) => {
       });
       
       // Reset form after successful creation
-      form.reset();
+      form.reset({
+        title: "",
+        description: "",
+        difficulty: "Medium",
+        solution_template: "function solution() {\n  // Write your solution here\n}",
+        tags: "algorithms",
+        test_cases: JSON.stringify([
+          { input: "example1", expected: "result1" },
+          { input: "example2", expected: "result2" }
+        ], null, 2),
+      });
     } catch (error: any) {
       toast({
         description: `Failed to create challenge: ${error.message}`,
@@ -130,6 +156,7 @@ const ChallengeForm = ({ isCreating, onSubmit }: ChallengeFormProps) => {
                 <Select 
                   onValueChange={field.onChange} 
                   defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
