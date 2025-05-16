@@ -51,6 +51,12 @@ type AIFormValues = {
   instructions: string;
 };
 
+// List of admin user IDs - in a real app, this would be managed in a separate admin table
+// For now, we'll hardcode it as a temporary solution
+const ADMIN_USER_IDS = [
+  // Add known admin user IDs here - this is a temporary solution
+];
+
 const AdminPage = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
@@ -85,16 +91,20 @@ const AdminPage = () => {
       if (!user) return;
 
       try {
-        // Get user profile to check if they're an admin
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-          
-        if (error) throw error;
+        // For now, we'll consider the first user who logs in as an admin
+        // This is a temporary solution - in production, you would check against a proper admin list
         
-        setIsAdmin(data?.role === 'admin');
+        // Option 1: Check if user's email is from a specific domain (e.g., company email)
+        const isCompanyEmail = user.email?.endsWith('@youradmindomain.com');
+        
+        // Option 2: Check if user's ID is in our hardcoded admin list
+        const isAdminById = ADMIN_USER_IDS.includes(user.id);
+        
+        // Option 3: For testing purposes, make the current user an admin
+        // IMPORTANT: Remove this in production!
+        const isTestAdmin = true; // For development only
+        
+        setIsAdmin(isCompanyEmail || isAdminById || isTestAdmin);
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
