@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 export type AIFormValues = {
   instructions: string;
@@ -23,15 +24,26 @@ interface AIGenerationFormProps {
 }
 
 const AIGenerationForm = ({ isGenerating, onGenerate }: AIGenerationFormProps) => {
+  const { toast } = useToast();
   const form = useForm<AIFormValues>({
     defaultValues: {
       instructions: "Create a medium difficulty challenge about array manipulation that requires finding the maximum sum of a subarray.",
     },
   });
 
+  const handleFormSubmit = async (values: AIFormValues) => {
+    try {
+      await onGenerate(values);
+    } catch (error: any) {
+      toast({
+        description: `Generation failed: ${error.message}`,
+      });
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onGenerate)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="instructions"

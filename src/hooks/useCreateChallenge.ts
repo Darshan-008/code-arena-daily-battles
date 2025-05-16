@@ -54,19 +54,19 @@ export function useCreateChallenge() {
   // Add a function to generate a challenge using AI
   const generateChallengeWithAI = async (instructions: string): Promise<Partial<CreateChallengeInput>> => {
     try {
-      const response = await fetch('/api/generate-challenge', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ instructions }),
+      // Use the Supabase edge function to generate a challenge
+      const { data, error } = await supabase.functions.invoke('generate-challenge', {
+        body: { instructions },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate challenge with AI');
+      if (error) {
+        throw new Error(`Failed to generate challenge: ${error.message}`);
       }
 
-      const data = await response.json();
+      if (!data) {
+        throw new Error('No data returned from AI generation');
+      }
+
       return {
         title: data.title,
         description: data.description,
@@ -77,6 +77,7 @@ export function useCreateChallenge() {
         is_ai_generated: true,
       };
     } catch (error: any) {
+      console.error("AI Generation error:", error);
       toast({
         description: `Failed to generate challenge with AI: ${error.message}`,
       });
