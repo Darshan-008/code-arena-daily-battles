@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export type Challenge = {
   id: string;
@@ -18,6 +19,7 @@ export type Challenge = {
 export function useChallenges() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   // Fetch all challenges
   const { data: challenges = [], isLoading, error } = useQuery({
@@ -43,6 +45,26 @@ export function useChallenges() {
   // Delete a challenge by ID
   const deleteChallenge = useMutation({
     mutationFn: async (id: string) => {
+      // First check if the current user is an admin by checking their role
+      if (!user) {
+        throw new Error("You must be logged in to delete challenges");
+      }
+      
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      
+      if (profileError) {
+        throw new Error("Unable to verify admin status");
+      }
+      
+      if (profileData.role !== "admin") {
+        throw new Error("Only admins can delete challenges");
+      }
+      
+      // If user is admin, proceed with deletion
       const { error } = await supabase
         .from("challenges")
         .delete()
@@ -50,9 +72,6 @@ export function useChallenges() {
       
       if (error) {
         console.error(`Error deleting challenge ${id}:`, error);
-        toast({
-          description: error.message,
-        });
         throw error;
       }
       

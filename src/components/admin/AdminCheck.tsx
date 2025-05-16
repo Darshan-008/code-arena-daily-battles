@@ -44,20 +44,23 @@ const AdminCheck = ({ children }: AdminCheckProps) => {
         // For now, we'll use a fallback for development only
         const isDevelopmentAdmin = process.env.NODE_ENV === 'development';
         
-        // Check for admin role in Supabase (if you have an admin role column in profiles)
+        // Check for admin role in Supabase (using the newly added role column in profiles)
         let hasAdminRole = false;
         
         try {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("profiles")
             .select("role")
             .eq("id", user.id)
             .single();
           
-          hasAdminRole = data?.role === "admin";
+          if (error) {
+            console.error("Error fetching user role:", error);
+          } else {
+            hasAdminRole = data?.role === "admin";
+          }
         } catch (error) {
-          // If the role column doesn't exist, this will fail silently
-          console.log("Note: No role column found in profiles table");
+          console.error("Error checking admin role:", error);
         }
         
         setIsAdmin(isCompanyEmail || isAdminById || isDevelopmentAdmin || hasAdminRole);
