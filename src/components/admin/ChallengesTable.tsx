@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -68,7 +68,17 @@ const ChallengesTable = () => {
               className="cursor-pointer"
               onClick={() => toggleRowExpansion(challenge.id)}
             >
-              <TableCell className="font-medium">{challenge.title}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  {challenge.title}
+                  {challenge.is_ai_generated && (
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      <span className="text-xs">AI</span>
+                    </Badge>
+                  )}
+                </div>
+              </TableCell>
               <TableCell>
                 <Badge className={
                   challenge.difficulty === "Easy" ? "bg-green-500" :

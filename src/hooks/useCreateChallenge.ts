@@ -11,6 +11,7 @@ type CreateChallengeInput = {
   solution_template: string;
   tags: string[];
   test_cases: any;
+  is_ai_generated?: boolean;
 };
 
 export function useCreateChallenge() {
@@ -28,6 +29,7 @@ export function useCreateChallenge() {
           solution_template: challenge.solution_template,
           tags: challenge.tags,
           test_cases: challenge.test_cases,
+          is_ai_generated: challenge.is_ai_generated || false,
         })
         .select()
         .single();
@@ -49,8 +51,42 @@ export function useCreateChallenge() {
     },
   });
 
+  // Add a function to generate a challenge using AI
+  const generateChallengeWithAI = async (instructions: string): Promise<Partial<CreateChallengeInput>> => {
+    try {
+      const response = await fetch('/api/generate-challenge', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ instructions }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate challenge with AI');
+      }
+
+      const data = await response.json();
+      return {
+        title: data.title,
+        description: data.description,
+        difficulty: data.difficulty,
+        solution_template: data.solution_template,
+        tags: data.tags,
+        test_cases: data.test_cases,
+        is_ai_generated: true,
+      };
+    } catch (error: any) {
+      toast({
+        description: `Failed to generate challenge with AI: ${error.message}`,
+      });
+      throw error;
+    }
+  };
+
   return {
     createChallenge: createChallengeMutation.mutateAsync,
+    generateChallengeWithAI,
     isCreating: createChallengeMutation.isPending,
   };
 }

@@ -12,6 +12,7 @@ export type Challenge = {
   solution_template?: string;
   test_cases?: string;
   created_at: string;
+  is_ai_generated?: boolean;
 };
 
 export function useChallenges() {
